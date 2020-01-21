@@ -1,0 +1,175 @@
+
+function renderScreen(){
+
+    if(window.pageYOffset > 25 || window.innerWidth < 992){
+        $('.navbar-main').addClass('navbar-scrolling');
+    }else{
+        $('.navbar-main').removeClass('navbar-scrolling');
+    }
+
+}
+
+window.onscroll = function(){
+  renderScreen();
+  // console.log($(window).scrollTop());
+  // var scrollHeight = $(window).scrollTop();
+  // if (scrollHeight >= 430 ) {
+  //   $('.partners').css('position', 'initial');
+  // } else if (scrollHeight < 430) {
+  //   $('.partners').css('position', 'absolute');
+  // }
+};
+
+window.onresize = function(){
+  renderScreen();
+  width = $(window).width();
+  if (width > 992) {
+    if ($('.mobile-nav').hasClass('open-nav')) {
+      $('.bottom-border').hide();
+    }
+  } else if (width < 992) {
+    if ($('.mobile-nav').hasClass('open-nav')) {
+      $('.bottom-border').hide();
+      $('.bottom-border').fadeIn();
+    }
+  }
+};
+
+function trackEvent(eventAction, additionalParams, callback) {
+  if (mixpanel) {
+    if (eventAction == "sign_up") { mixpanel.track("Clicked SignUp", additionalParams); /* legacy */ }
+    else { mixpanel.track(eventAction, additionalParams); }
+  }
+
+  if (ga) {
+    var options = { 'eventCategory': 'Marketing' }
+    // Event Action
+    if (eventAction) { options.eventAction = eventAction; }
+    else { options.eventAction = "(Unknown)"; }
+    // Event Label
+    options.eventLabel = "";
+    if (additionalParams["ButtonLabel"]) { options.eventLabel = additionalParams["ButtonLabel"]; }
+    else { options.eventLabel = "NoLabel"; }
+    if (additionalParams["Page"]) { options.eventLabel += additionalParams["Page"]; }
+    if(typeof callback === "function"){
+      options.hitCallback = callback;
+    }
+    // Send the Event
+    ga('send', 'event', options);
+  }
+}
+
+function signUp(eventAction, additionalParams) {
+    trackEvent(eventAction, additionalParams);
+    setTimeout(function() {
+        location.href="https://dashboard.branch.io/?origin=website-home&#/";
+    }, 250);
+}
+
+var d = 0;
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var ca = document.cookie.split(';');
+  for(var i=0; i<ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1);
+      if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+  }
+  return "";
+}
+
+function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  var expires = "expires="+d.toUTCString();
+  document.cookie = cname + "=" + cvalue + "; " + expires + "; path=/; domain=.branch.io";
+}
+
+function submitContactUsForm() {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  if(!$('#inputName').val() || !$('#inputEmail').val() || !$('#inputMessage').val() || !re.test($('#inputEmail').val())){
+    alert("Please type in valid information in the form");
+    return false;
+  }
+
+  $('#inputName').prop('disabled', true);
+  $('#inputEmail').prop('disabled', true);
+  $('#inputMessage').prop('disabled', true);
+
+  $('#ajax_button').attr('onclick','');
+  $('#ajax_button_label').html('Sending message');
+  $('#ajax_button_icon_1').hide();
+  $('#ajax_button_icon_2').show();
+
+  $.ajax({
+    url: "https://dashboard.branch.io/website-form",
+    method: "POST",
+    dataType: "json",
+    data: { formType: 'contact', name: $('#inputName').val(), email: $('#inputEmail').val(), message: $('#inputMessage').val() },
+    success: function (dataCheck) {
+      $('#form-send').hide();
+      $('#form-success').show();
+    },
+    error: function(xhr, error){
+      alert("There was an error while sending the message, please try again later.");
+    },
+  });
+
+  // Newsletter subscription
+  $.ajax({
+    url: "https://dashboard.branch.io/subscribe",
+    method: "POST",
+    dataType: "json",
+    data: {name: $('#inputName').val(), email: $('#inputEmail').val()},
+    success: function (dataCheck) {},
+    error: function(xhr, error){},
+  });
+}
+
+function submitHelpForm() {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  if(!$('#inputName').val() || !$('#inputEmail').val() || !$('#inputMessage').val() || !re.test($('#inputEmail').val())){
+    alert("Please type in valid information in the form");
+    return false;
+  }
+
+  $('#inputName').prop('disabled', true);
+  $('#inputEmail').prop('disabled', true);
+  $('#inputPhone').prop('disabled', true);
+  $('#inputMessage').prop('disabled', true);
+
+  $('#ajax_button').attr('onclick','');
+  $('#ajax_button_label').html('Sending message');
+  $('#ajax_button_icon_1').hide();
+  $('#ajax_button_icon_2').show();
+
+  $.ajax({
+    url: "https://dashboard.branch.io/website-form",
+    method: "POST",
+    dataType: "json",
+    data: { formType: 'help', name: $('#inputName').val(), email: $('#inputEmail').val(), phone: $('#inputPhone').val(), message: $('#inputMessage').val() },
+
+    success: function (dataCheck) {
+      $('#form-send').hide();
+      $('#form-success').show();
+    },
+    error: function(xhr, error){
+      alert("There was an error while sending the message, please try again later.");
+    },
+
+  });
+
+  // Newsletter subscription
+  $.ajax({
+    url: "https://dashboard.branch.io/subscribe",
+    method: "POST",
+    dataType: "json",
+    data: {name: $('#inputName').val(), email: $('#inputEmail').val()},
+    success: function (dataCheck) {},
+    error: function(xhr, error){},
+  });
+
+}
