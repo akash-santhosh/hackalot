@@ -1,5 +1,5 @@
 // List of sentences
-var _CONTENT = [ "March 29,30,31", "Free & Open", "48 Hours","6PM - 6PM","Develop From Scratch" ];
+var _CONTENT = [ "March 27,28,29", "Free & Open", "48 Hours","6PM - 6PM","Develop From Scratch" ];
 
 // Current sentence being processed
 var _PART = 0;
